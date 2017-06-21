@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace DuplicateFiles
+namespace DuplicateFiles.view
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for SearchSettingsControl.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class SearchSettingsControl : UserControl
     {
-        public MainWindow()
+        public SearchSettingsControl()
         {
             InitializeComponent();
         }

@@ -1,0 +1,101 @@
+﻿<UserControl
+    x:Class="DuplicateFiles.view.SearchResultControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:DuplicateFiles.view"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utils="clr-namespace:WpfUtils"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <utils:NullVisibilityConverter x:Key="NullVisibilityConverter" />
+        <utils:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+    </UserControl.Resources>
+
+    <DockPanel Margin="10,0,0,0" Visibility="{Binding SearchResult, Converter={StaticResource NullVisibilityConverter}}">
+
+        <StackPanel
+            DataContext="{Binding SearchResult}"
+            DockPanel.Dock="Top"
+            Orientation="Horizontal">
+
+            <Button Command="{Binding OnDeleteSelected}" Content="Delete Selected File" />
+        </StackPanel>
+
+        <ScrollViewer
+            DataContext="{Binding SearchResult}"
+            HorizontalScrollBarVisibility="Disabled"
+            VerticalScrollBarVisibility="Visible">
+
+            <StackPanel x:Name="searchResultContext">
+                <ItemsControl ItemsSource="{Binding ResultGroups}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+
+                            <Border
+                                Grid.Column="0"
+                                Margin="0,10,0,0"
+                                BorderBrush="#FF828790"
+                                BorderThickness="1">
+
+                                <DockPanel>
+                                    <TextBox
+                                        DockPanel.Dock="Top"
+                                        IsReadOnly="True"
+                                        Text="{Binding GroupHeader}" />
+
+                                    <ListView
+                                        utils:GridViewColumnResize.Enabled="True"
+                                        ItemsSource="{Binding Files}"
+                                        SelectedItem="{Binding DataContext.SelectedFile, ElementName=searchResultContext}"
+                                        SelectionMode="Single">
+
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Vertical">
+                                                    <!--  Files will be inserted here  -->
+                                                </StackPanel>
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridView.Columns>
+                                                    <GridViewColumn utils:GridViewColumnResize.Width="2*" Header="Path">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding FilePath}" />
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                    <GridViewColumn utils:GridViewColumnResize.Width="*" Header="Path">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding FileName}" />
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                </GridView.Columns>
+                                            </GridView>
+                                        </ListView.View>
+
+                                    </ListView>
+                                </DockPanel>
+                            </Border>
+
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

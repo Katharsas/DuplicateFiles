@@ -1,0 +1,194 @@
+﻿<Window
+    x:Class="DuplicateFiles.view.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:DuplicateFiles"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utils="clr-namespace:WpfUtils"
+    xmlns:view="clr-namespace:DuplicateFiles.view"
+    Title="DuplicateFinder"
+    Width="900"
+    Height="577"
+    DataContext="{Binding Main, Source={StaticResource Locator}}"
+    mc:Ignorable="d">
+
+    <Window.Resources>
+        <utils:NullVisibilityConverter x:Key="NullVisibilityConverter" />
+        <utils:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+    </Window.Resources>
+
+    <DockPanel Margin="4,0,4,4" UseLayoutRounding="True">
+
+        <ScrollViewer
+            Width="350"
+            DockPanel.Dock="Left"
+            HorizontalScrollBarVisibility="Disabled"
+            VerticalScrollBarVisibility="Visible">
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding Searches}">
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Grid.Column="0"
+                                Margin="0,0,0,2"
+                                Padding="5,5,5,5"
+                                BorderBrush="#FF828790"
+                                BorderThickness="1">
+
+                                <StackPanel Orientation="Vertical">
+                                    <StackPanel.Resources>
+                                        <Style TargetType="RadioButton">
+                                            <Setter Property="Margin" Value="0,2,0,2" />
+                                        </Style>
+                                        <Style TargetType="GroupBox">
+                                            <Setter Property="Margin" Value="0,0,0,10" />
+                                            <Setter Property="Padding" Value="5,10,5,5" />
+                                        </Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Padding" Value="1,1,1,1" />
+                                        </Style>
+                                        <Style TargetType="CheckBox" />
+                                        <Style TargetType="Label">
+                                            <Setter Property="Margin" Value="0,2,0,2" />
+                                            <Setter Property="Padding" Value="0,0,0,0" />
+                                        </Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        </Style>
+                                    </StackPanel.Resources>
+
+                                    <GroupBox Header="Directory">
+                                        <StackPanel Orientation="Vertical">
+                                            <DockPanel>
+                                                <Button
+                                                    Margin="0,0,5,0"
+                                                    Padding="10,1,10,1"
+                                                    Command="{Binding OnSearchDirDialog}"
+                                                    Content="Select"
+                                                    DockPanel.Dock="Left" />
+                                                <TextBox
+                                                    VerticalAlignment="Center"
+                                                    VerticalContentAlignment="Center"
+                                                    Text="{Binding SearchRootDir}" />
+                                            </DockPanel>
+                                            <CheckBox
+                                                Margin="0,5,0,0"
+                                                VerticalContentAlignment="Center"
+                                                IsChecked="{Binding SearchOnlyTopDir}">
+                                                <Label Content="Do not search subdirectories" />
+                                            </CheckBox>
+                                        </StackPanel>
+                                    </GroupBox>
+
+                                    <GroupBox Header="Filter">
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Left" Text="Filter by File Pattern: " />
+                                            <TextBox Text="{Binding SearchFilePattern}" />
+                                        </DockPanel>
+                                    </GroupBox>
+
+                                    <GroupBox Header="Duplicate Identification Method">
+                                        <StackPanel Orientation="Vertical">
+                                            <RadioButton GroupName="matcherType" IsChecked="{Binding MatcherType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static local:MatcherType.Always}}">
+                                                Use Constraints Only (see below)
+                                            </RadioButton>
+                                            <RadioButton GroupName="matcherType" IsChecked="{Binding MatcherType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static local:MatcherType.Length}}">
+                                                Length (very fast)
+                                            </RadioButton>
+                                            <RadioButton GroupName="matcherType" IsChecked="{Binding MatcherType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static local:MatcherType.LengthHash}}">
+                                                Hash (fast, recommended)
+                                            </RadioButton>
+                                            <RadioButton GroupName="matcherType" IsChecked="{Binding MatcherType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static local:MatcherType.LengthHashContent}}">
+                                                Byte Comparison (paranoid)
+                                            </RadioButton>
+                                            <RadioButton GroupName="matcherType" IsChecked="{Binding MatcherType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static local:MatcherType.Similarity}}">
+                                                Byte Similarity (very slow - ignores files &gt; 20 KB!)
+                                            </RadioButton>
+                                            <DockPanel>
+                                                <TextBlock
+                                                    Padding="20,0,0,0"
+                                                    DockPanel.Dock="Left"
+                                                    IsEnabled="{Binding isSimilarityThresholdEnabled}"
+                                                    Text="Similarity Threshold (1 = Byte Comparison): " />
+                                                <TextBox
+                                                    DataObject.Pasting="TextBoxPasting"
+                                                    IsEnabled="{Binding isSimilarityThresholdEnabled}"
+                                                    PreviewTextInput="PreviewTextInputFloat"
+                                                    Text="{Binding SimilarityThreshold}" />
+                                            </DockPanel>
+                                        </StackPanel>
+                                    </GroupBox>
+
+                                    <GroupBox Header="Duplicate Identification Constraints">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox VerticalContentAlignment="Center" IsChecked="{Binding IsConstraintSameNameEnabled}">
+                                                <Label Content="Name must match" />
+                                            </CheckBox>
+                                            <CheckBox VerticalContentAlignment="Center" IsChecked="{Binding IsConstraintSameCreationDateEnabled}">
+                                                <Label Content="Date 'created' must match" />
+                                            </CheckBox>
+                                            <CheckBox VerticalContentAlignment="Center" IsChecked="{Binding IsConstraintSameModifiedDateEnabled}">
+                                                <Label Content="Date 'modified' must match" />
+                                            </CheckBox>
+                                        </StackPanel>
+                                    </GroupBox>
+
+                                    <GroupBox Header="Actions">
+                                        <StackPanel Orientation="Vertical">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button
+                                                    Width="100px"
+                                                    Margin="0,0,5,0"
+                                                    Padding="10,1,10,1"
+                                                    Command="{Binding OnSearchAction}"
+                                                    Content="{Binding SearchActionButtonLabel, Mode=TwoWay}" />
+                                                <!--<Button
+                                                    Margin="0,0,5,0"
+                                                    Padding="10,1,10,1"
+                                                    Command="{Binding OnSaveAction}"
+                                                    Content="Save" />
+                                                <Button
+                                                    Padding="10,1,10,1"
+                                                    Command="{Binding OnDeleteAction}"
+                                                    Content="Delete" />-->
+                                            </StackPanel>
+                                            <!--<CheckBox VerticalContentAlignment="Center" IsChecked="{Binding IsRepeatOnStartEnabled}">
+                                                <Label Content="Auto-Repeat On Program Start" />
+                                            </CheckBox>-->
+                                            <TextBlock Margin="15,10,0,0" Text="{Binding SearchStatus}" />
+                                        </StackPanel>
+                                    </GroupBox>
+
+                                    <!--<Button Command="{Binding OnTest}">
+                                        Test
+                                    </Button>-->
+
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <view:SearchResultControl />
+
+    </DockPanel>
+</Window>
